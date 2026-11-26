@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061009">
+<meta name="description" content="صورت‌پروژه Mini NPM درس ساختمان داده: معرفی و دامنه، موجودیت‌ها و قرارداد رفتار، معماری MVC، ساختمان داده‌های الزامی، قوانین مجاز/غیرمجاز، قرارداد CLI، قوانین نصب و حذف، مدیریت خطا، آزمایشگاه Registry، قابلیت امتیازی JSON و نکات تحویل">
+<title>Mini NPM | صورت‌پروژه درس ساختمان داده</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#050a07;--panel:#0b150f;--panel2:#0e1c13;--panel3:#12261a;--line:#24412d;--line2:#3d754c;--text:#e6f7e9;--mute:#a1bea9;--dim:#74947d;--green:#7df69a;--lime:#b3ffa8;--yellow:#eecf86;--red:#ffa49d;--mono:ui-monospace,SFMono-Regular,Consolas,'Liberation Mono',monospace;--sans:Vazirmatn,Tahoma,Arial,sans-serif;--width:1180px}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:83px}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.95;overflow-wrap:break-word}body::before{content:"";inset:0;position:fixed;pointer-events:none;z-index:-1;background:radial-gradient(ellipse 72% 460px at 80% 2%,#123f1c65,transparent),radial-gradient(ellipse 58% 430px at 3% 45%,#0c2b195c,transparent),linear-gradient(transparent 31px,#233f261a 32px),linear-gradient(90deg,transparent 31px,#233f261a 32px);background-size:auto,auto,32px 32px,32px 32px}
+::selection{background:#2b7e44;color:white}a{color:inherit;text-decoration:none}button,input,textarea{font:inherit}button{cursor:pointer}button,a,input,textarea{-webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--green);outline-offset:3px}.wrap{width:min(var(--width),calc(100% - 46px));margin-inline:auto}.skip{position:absolute;top:-100px;right:12px;z-index:200;background:var(--green);color:#071108;padding:8px 16px;border-radius:7px}.skip:focus{top:8px}
+.topbar{position:sticky;top:0;background:#061009f0;backdrop-filter:blur(18px);z-index:90;border-bottom:1px solid #204129}.topbar .wrap{min-height:71px;display:flex;align-items:center;gap:18px;justify-content:space-between}.brand{font:800 19px var(--mono);direction:ltr;white-space:nowrap;display:inline-flex;align-items:center;gap:9px;letter-spacing:-.6px}.brand span:last-child{color:var(--green)}.brand-icon{height:33px;width:33px;border-radius:9px;background:#11301a;border:1px solid #3f7f50;color:var(--green);display:grid;place-items:center;font:700 16px var(--mono)}.nav{display:flex;gap:12px;align-items:center}.nav a{font-size:11.8px;color:#bdcfbd;white-space:nowrap}.nav a:hover,.nav a.active{color:var(--green)}.top-pill{padding:5px 10px;border:1px solid #326340;border-radius:7px;font:11px var(--mono);color:var(--green);direction:ltr;white-space:nowrap}.menu-toggle{display:none;align-items:center;justify-content:center;width:42px;height:40px;background:#102216;border:1px solid var(--line2);color:var(--green);border-radius:10px;font:23px var(--mono)}
+.hero{display:grid;grid-template-columns:1fr 1.02fr;align-items:center;gap:58px;padding-block:77px 83px}.eyebrow,.section-code{font:700 11.5px var(--mono);letter-spacing:1px;color:var(--green);direction:ltr;text-align:right}.eyebrow:before,.section-code:before{content:'$ ';color:#5e9369}h1,h2,h3,p{margin-top:0}h1{font-size:clamp(40px,5vw,71px);letter-spacing:-1px;line-height:1.35;margin:18px 0 18px;font-weight:900}h1 .accent{color:var(--green)}.hero-lead{font-size:15px;color:var(--mute);line-height:2.3;max-width:590px;margin:0 0 24px}.hero-lead strong{color:#e0ffe3}.chips{display:flex;flex-wrap:wrap;gap:8px;margin:19px 0 25px}.chip{font:11px var(--mono);padding:6px 10px;border:1px solid #335b3d;border-radius:7px;background:#0f2416;color:#b6d9bc;direction:ltr}.chip.active{background:#184826;color:var(--green);border-color:#4caa65}.buttons{display:flex;gap:10px;flex-wrap:wrap}.btn{min-height:44px;border-radius:9px;border:1px solid #367e49;background:#194a29;padding:10px 20px;font-size:13px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:9px;color:#effff0}.btn:hover{background:#286a3a}.btn.ghost{background:#0b170e;border-color:#31523a;color:#d0e3d0}.btn.ghost:hover{border-color:#73b985}.microstats{border-top:1px solid var(--line);margin-top:36px;padding-top:20px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.microstats b{font:800 27px var(--mono);color:var(--lime);display:block}.microstats span{font-size:11px;color:var(--mute);display:block}
+.terminal{direction:ltr;text-align:left;background:#050d08;border:1px solid #377348;border-radius:17px;box-shadow:0 25px 65px #0008;overflow:hidden;min-width:0}.terminal-bar{height:45px;padding:0 16px;background:#122016;border-bottom:1px solid #285233;display:flex;align-items:center;justify-content:space-between;gap:15px}.dots{display:flex;gap:7px}.dot{height:10px;width:10px;border-radius:50%;background:#f96d68}.dot:nth-child(2){background:#f6c866}.dot:nth-child(3){background:#68d88a}.term-title{font:11px var(--mono);color:#8bac94;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.demo-label{font:10px var(--mono);color:var(--green)}.terminal-body{padding:19px 20px;height:297px;overflow-y:auto;overflow-x:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font:12.3px/1.85 var(--mono);color:#caddce}.term-line{margin-bottom:3px}.t-prompt{color:var(--green);font-weight:800}.t-ok{color:#8effa7}.t-error{color:var(--red)}.t-warn{color:var(--yellow)}.t-dim{color:#8aa994}.term-input-row{border-top:1px solid #1f4128;display:flex;align-items:center;gap:8px;padding:11px 14px;background:#07140a}.term-input-row label{font:700 12px var(--mono);color:var(--green);white-space:nowrap}.term-input-row input{flex:1;min-width:0;border:0;outline:0;color:#e8f8e9;background:transparent;font:12.5px var(--mono);direction:ltr;text-align:left}.term-input-row button{background:#16341e;color:var(--green);border:1px solid #3d7448;border-radius:6px;font:11px var(--mono);padding:5px 10px}.term-foot{padding:11px 15px 15px;border-top:1px solid #1e3a27;background:#0b170e}.term-foot p{font-size:11px;color:#99b4a0;line-height:1.75;margin-bottom:9px;direction:rtl;text-align:right}.quick{display:flex;direction:rtl;flex-wrap:wrap;gap:7px}.quick button{background:#13281a;color:#c2dbca;border:1px solid #355e3d;border-radius:7px;font:11px var(--mono);padding:6px 9px}.quick button:hover{color:var(--green);border-color:var(--green)}
+.section{padding-block:66px}.divider{border:0;border-top:1px solid var(--line)}.section-head{margin-bottom:24px}.section-head h2{font-size:clamp(25px,3vw,35px);line-height:1.5;margin:11px 0 9px;letter-spacing:-.4px}.lead{font-size:14px;color:var(--mute);line-height:2.2;margin:0}.card{min-width:0;padding:23px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,#101e14,#0a130d)}.card h3{font-size:17px;margin-bottom:9px}.card p{color:var(--mute);font-size:13px;margin-bottom:0}.card-tag{font:700 10.5px var(--mono);color:var(--green);direction:ltr;text-align:right;letter-spacing:.3px;margin-bottom:11px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.featured{border:1px solid #3b8551;border-radius:14px;background:linear-gradient(115deg,#14351e,#0b170f);padding:20px 24px;margin-top:19px;display:flex;gap:15px;align-items:flex-start}.featured .mark{font:800 26px var(--mono);color:var(--green)}.featured p{margin:0;color:#d7f0dd;font-size:13.5px}.featured strong{color:var(--lime)}.ticks{list-style:none;padding:0;margin:0;display:grid;gap:11px}.ticks li{position:relative;padding-inline-start:22px;color:#d6e6d7;font-size:13px;line-height:2.05}.ticks li:before{content:'✓';position:absolute;inset-inline-start:0;top:0;font:800 14px var(--mono);color:var(--green);line-height:2.05}.ticks.danger li:before{content:'×';color:var(--red)}.card.forbid{border-color:#61433c;background:linear-gradient(150deg,#1f1512,#111411)}.card.forbid .card-tag{color:var(--red)}.note{color:var(--mute);font-size:12.5px;margin:15px 0 0}code,.mono{font-family:var(--mono);direction:ltr;unicode-bidi:isolate}code{font-size:.9em;padding:1px 5px;border-radius:5px;background:#15281a;border:1px solid #2c5135;color:var(--lime)}
+.entity-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}.entity{display:flex;flex-direction:column;padding:19px;border-radius:13px;background:#0c1910;border:1px solid #294833;min-width:0}.entity .no{font:700 11px var(--mono);color:#72a97e}.entity h3{font:700 14px/1.7 var(--mono);color:var(--green);direction:ltr;text-align:left;margin:9px 0 8px;overflow-wrap:anywhere}.entity p{font-size:12px;color:#b3cbb7;margin:0;line-height:2}.entity .type{margin-top:auto;padding-top:12px;font:700 10.5px var(--mono);color:var(--green);direction:ltr;text-align:left;letter-spacing:.4px}.entity .type.mvc-model{color:#7df69a}.entity .type.mvc-controller{color:#eecf86}.entity .type.mvc-view{color:#8ad8ff}[data-theme="light"] .entity .type.mvc-model{color:#15803d}[data-theme="light"] .entity .type.mvc-controller{color:#a16207}[data-theme="light"] .entity .type.mvc-view{color:#0369a1}.arch{margin-top:18px;border:1px solid #3a6645;border-radius:16px;background:radial-gradient(ellipse 60% 100% at 50% 0,#1a3621,#09150d);padding:24px}.arch-caption{font-size:12px;color:#a8c5b0;margin:15px 0 0;text-align:center}.arch-flow{display:grid;gap:10px;justify-items:center}.arch-box{width:min(100%,550px);text-align:center;background:#12271a;border:1px solid #438054;border-radius:10px;padding:11px 17px}.arch-box strong{display:block;font-size:13px}.arch-box small{display:block;color:#a4c8aa;font-size:11px}.arch-box.highlight{border-color:#75e18b;background:#183e23}.arch-connector{font:700 17px var(--mono);color:var(--green);line-height:1}.arch-middle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(100%,790px)}.arch-middle .arch-box{width:100%;padding:15px 10px}.arch-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,660px)}.arch-row .arch-box{width:100%}.freedom{display:flex;align-items:flex-start;gap:12px;padding:17px 20px;border:1px dashed #558666;border-radius:12px;margin-top:17px;font-size:13px;color:#d4e7d7;background:#0a190f}.freedom b{color:var(--green)}
+.ds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.ds-card{border:1px solid var(--line);border-radius:13px;background:#0e1a12;padding:22px}.ds-card h3{font:800 18px var(--mono);color:var(--green);direction:ltr;text-align:left;margin:8px 0}.ds-card p{font-size:12.8px;color:var(--mute);margin:0}.ds-card .num{font:11px var(--mono);color:#6eb782}.commands{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.command{display:flex;gap:15px;align-items:flex-start;padding:18px;border:1px solid var(--line);background:#0a160e;border-radius:12px;min-width:0}.command .syntax{flex:0 0 42%;min-width:0;font:700 12.5px/1.8 var(--mono);text-align:left;direction:ltr;color:var(--green);overflow-wrap:anywhere}.command p{flex:1;color:#c4dac9;font-size:12.5px;line-height:2;margin:0}.command small{display:block;color:#87a48d;font-size:11px;margin-top:6px}.subhead{font-size:19px;margin:29px 0 13px}.behaviors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.behavior{border:1px solid var(--line);border-radius:12px;padding:19px;background:#0f1c13}.behavior .tag{font:700 11px var(--mono);color:var(--green);direction:ltr;text-align:left}.behavior h3{font-size:15px;margin:7px 0}.behavior p{font-size:12.3px;color:var(--mute);margin:0}.example{margin-top:18px;padding:18px 20px;background:#08170d;border:1px solid #31663d;border-radius:13px;display:grid;grid-template-columns:1fr 1.4fr;align-items:center;gap:16px}.example pre{font:12px/1.9 var(--mono);white-space:pre;margin:0;color:#c9edd2;direction:ltr;text-align:left}.example p{font-size:12.5px;color:var(--mute);margin:0}.example .ex-title{font-size:14px;font-weight:800;color:var(--text);margin:0 0 8px}.example .ex-list{margin:0;padding-inline-start:18px;font-size:12.5px;color:var(--mute);line-height:2.1}.example .ex-list li{margin-bottom:4px}.example .ex-list li:last-child{margin-bottom:0}.example .ex-list strong{color:var(--text)}
+.tests{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.test-list{padding-inline-start:20px;margin:0;color:#d1e1d3;font-size:12.7px;line-height:2.5}.test-list li::marker{color:var(--green);font-family:var(--mono)}
+.bonus-box{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;border:1px solid #4d965f;background:linear-gradient(120deg,#102f1b,#0b180f);border-radius:16px;padding:27px}.bonus-box h3{font-size:20px;margin:0 0 9px}.bonus-box p{color:#bad5c0;font-size:13px;margin:0}.bonus-box .syntax-line{margin:14px 0;display:flex;gap:9px;flex-wrap:wrap}.bonus-box .score{font:900 36px var(--mono);color:var(--lime);border:1px solid #4e8d5c;background:#133b20;border-radius:13px;padding:17px 20px;text-align:center;direction:ltr}.bonus-box .score small{font:500 11px var(--sans);color:#b2d1b9;display:block;direction:rtl}.grading-top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:15px}.grading-top .kpi{background:#0e2014;border:1px solid #346a41;border-radius:13px;padding:17px 22px}.grading-top .kpi span{font:700 11px var(--mono);color:#a0d3ac;display:block;direction:ltr;text-align:right}.grading-top .kpi strong{font:900 34px var(--mono);color:var(--green);display:block}.grading-top .kpi small{display:block;color:#aecbb4;font-size:12px}.grades{border:1px solid var(--line);background:#09150d;border-radius:13px;overflow:hidden}.grade{border-bottom:1px solid var(--line);padding:14px 21px}.grade:last-child{border:0}.grade .line{display:flex;justify-content:space-between;gap:14px;align-items:start;font-size:12.9px;margin-bottom:9px}.grade .line strong{font:800 17px var(--mono);color:var(--green);white-space:nowrap}.bar{height:6px;background:#1d3324;border-radius:12px;overflow:hidden}.bar span{height:100%;display:block;border-radius:12px;background:linear-gradient(90deg,#37bd5a,#a1ffac)}
+.delivery{display:grid;grid-template-columns:1fr 1fr;gap:14px}.footer{padding-block:32px 40px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#849f8c;font-size:12px}.muted{color:var(--mute)}.marker{color:var(--green)}
+.registry-lab{margin-top:17px;display:grid;grid-template-columns:.95fr 1.05fr;gap:14px}.registry-edit{border:1px solid #325f3d;background:#09140d;border-radius:13px;padding:17px}.registry-edit label{display:block;color:#bde5c4;font-size:13px;font-weight:700;margin-bottom:5px}.registry-edit p{font-size:11.8px;color:var(--mute);margin:0 0 10px}.registry-edit textarea{direction:ltr;text-align:left;width:100%;background:#040c07;border:1px solid #375a3e;border-radius:9px;padding:12px;resize:vertical;min-height:246px;color:#c8f2d0;font:12px/1.7 var(--mono);overflow-wrap:normal;white-space:pre;tab-size:2}.registry-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.registry-buttons button{background:#1a4627;border:1px solid #4e945f;color:#e1ffe7;padding:7px 11px;border-radius:7px;font-size:12px}.registry-buttons button.secondary{background:#101f14;border-color:#365a3c}.lab-hint{font-size:12px;color:var(--mute);margin:0 0 10px}.registry-output{border:1px solid #325f3d;border-radius:13px;background:#09150c;padding:18px;min-width:0}.registry-output h3{font-size:15px;margin-bottom:9px}.state-view{font:12px/1.95 var(--mono);direction:ltr;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;color:#cdf3d3;min-height:137px;margin:0;padding:14px;border-radius:8px;border:1px solid #1d3f28;background:#061008}.hint-text{font-size:12px;color:#b3c7b8;margin-top:13px}.status{min-height:23px;font-size:12px;color:var(--green);margin-top:9px}.status.error{color:var(--red)}
+@media(max-width:1160px){.top-pill{display:none}}@media(max-width:1080px){.nav{gap:9px}.nav a{font-size:11px}.hero{gap:30px}.entity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:860px){.topbar .wrap{min-height:64px}.menu-toggle{display:flex}.top-pill{display:none}.nav{display:none;position:absolute;top:64px;left:0;right:0;background:#08180c;border-bottom:1px solid var(--line);padding:11px 24px 20px;flex-direction:column;align-items:stretch;gap:0;box-shadow:0 24px 35px #0008}.nav.open{display:flex}.nav a{padding:9px 3px;font-size:13.5px}.hero{grid-template-columns:1fr;padding-block:55px}.terminal{max-width:720px;width:100%;justify-self:center}.section{padding-block:53px}.ds{grid-template-columns:1fr}.behaviors{grid-template-columns:repeat(2,minmax(0,1fr))}.commands{grid-template-columns:1fr}.registry-lab{grid-template-columns:1fr}}
+@media(max-width:600px){.wrap{width:min(var(--width),calc(100% - 30px))}.brand{font-size:16px}.brand-icon{height:30px;width:30px}.hero{padding-block:33px 44px;gap:31px}.eyebrow{font-size:10px;letter-spacing:0}h1{font-size:clamp(35px,9vw,44px);line-height:1.42}.hero-lead{font-size:13.5px}.section{padding-block:44px}.section-head h2{font-size:25px}.grid2,.grid3,.tests,.delivery{grid-template-columns:1fr}.entity-grid{grid-template-columns:1fr}.arch{padding:15px 10px}.arch-middle{grid-template-columns:1fr}.arch-row{grid-template-columns:1fr}.arch-connector{line-height:.8}.arch-box{padding:10px 9px}.microstats{gap:7px}.microstats b{font-size:22px}.microstats span{font-size:10px}.buttons .btn{width:100%}.terminal-body{padding:13px;font-size:11px;height:270px}.term-title{font-size:9px}.term-foot{padding:11px}.terminal-bar{padding-inline:10px}.term-input-row{padding-inline:10px}.term-input-row label,.term-input-row input{font-size:11px}.featured{padding:16px;gap:9px}.featured p{font-size:12.8px}.card{padding:19px}.command{flex-direction:column;gap:7px}.command .syntax{flex:none;width:100%;font-size:12px}.behaviors{grid-template-columns:1fr}.example{grid-template-columns:1fr}.bonus-box{grid-template-columns:1fr;padding:20px}.bonus-box .score{padding:12px}.grading-top{grid-template-columns:1fr}.grade{padding:12px 15px}.grade .line{font-size:12px}.footer{display:block}.footer>*{display:block;margin-bottom:7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{.topbar,.term-input-row,.term-foot,.registry-lab,.buttons,.skip{display:none!important}body{background:white;color:#111}body:before{display:none}.card,.entity,.arch,.ds-card,.behavior,.command,.bonus-box,.grade,.featured,.doc-table,.freedom{break-inside:avoid}.doc-table{font-size:10.5px}.section{padding-block:25px} }
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:42px;height:40px;background:#102216;border:1px solid var(--line2);color:var(--green);border-radius:10px;position:relative;flex-shrink:0}
+.theme-toggle:hover{border-color:var(--green)}
+.theme-toggle:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+[data-theme="light"] .theme-toggle{background:#e2f4e7}
+.theme-icon{position:absolute;transition:opacity .18s ease,transform .18s ease;pointer-events:none}
+.theme-toggle .icon-moon{opacity:0;transform:rotate(-90deg) scale(.5)}
+.theme-toggle .icon-sun{opacity:1;transform:rotate(0) scale(1)}
+[data-theme="light"] .theme-toggle .icon-sun{opacity:0;transform:rotate(90deg) scale(.5)}
+[data-theme="light"] .theme-toggle .icon-moon{opacity:1;transform:rotate(0) scale(1)}
+@media(prefers-reduced-motion:reduce){.theme-icon{transition:none!important}}
+@media print{.theme-toggle{display:none!important}}
+/* ===== LIGHT THEME ===== */
+[data-theme="light"]{color-scheme:light;--bg:#f3f7f3;--panel:#ffffff;--panel2:#eef4ef;--panel3:#e2ebe4;--line:#c4d6c8;--line2:#8aa790;--text:#182b1d;--mute:#4a6151;--dim:#6a8276;--green:#15803d;--lime:#166534;--yellow:#a16207;--red:#b91c1c}
+[data-theme="light"] body::before{background:radial-gradient(ellipse 72% 460px at 80% 2%,#15803d12,transparent),radial-gradient(ellipse 58% 430px at 3% 45%,#0c2b1912,transparent),linear-gradient(transparent 31px,#15803d0a 32px),linear-gradient(90deg,transparent 31px,#15803d0a 32px)}
+[data-theme="light"] ::selection{background:#15803d;color:white}
+[data-theme="light"] .skip{background:var(--green);color:#fff}
+[data-theme="light"] .topbar{background:#f3f7f3f0;border-bottom:1px solid #c4d6c8}
+[data-theme="light"] .brand-icon{background:#e2f4e7;border:1px solid #8aa790}
+[data-theme="light"] .nav a{color:#4a6151}
+[data-theme="light"] .nav a:hover,[data-theme="light"] .nav a.active{color:var(--green)}
+[data-theme="light"] .top-pill{border:1px solid #b6d4bc}
+[data-theme="light"] .menu-toggle{background:#e2f4e7;border:1px solid var(--line2)}
+[data-theme="light"] .hero-lead strong{color:#166534}
+[data-theme="light"] .chip{border:1px solid #b6d4bc;background:#eef4ef;color:#4a6151}
+[data-theme="light"] .chip.active{background:#d4f0db;color:var(--green);border-color:var(--green)}
+[data-theme="light"] .btn{border:1px solid #15803d;background:#15803d;color:#ffffff}
+[data-theme="light"] .btn:hover{background:#166534}
+[data-theme="light"] .btn.ghost{background:#ffffff;border-color:#b6d4bc;color:#15803d}
+[data-theme="light"] .btn.ghost:hover{border-color:#15803d;background:#eef4ef}
+[data-theme="light"] .terminal{background:#f8faf7;border:1px solid #b6d4bc;box-shadow:0 15px 35px #00000018}
+[data-theme="light"] .terminal-bar{background:#eef4ef;border-bottom:1px solid #c4d6c8}
+[data-theme="light"] .term-title{color:#4a6151}
+[data-theme="light"] .terminal-body{color:#182b1d}
+[data-theme="light"] .t-ok{color:#15803d}
+[data-theme="light"] .t-dim{color:#6a8276}
+[data-theme="light"] .term-input-row{border-top:1px solid #c4d6c8;background:#f3f7f3}
+[data-theme="light"] .term-input-row input{color:#182b1d}
+[data-theme="light"] .term-input-row input::placeholder{color:#8aa790}
+[data-theme="light"] .term-input-row button{background:#e2f4e7;border:1px solid #8aa790}
+[data-theme="light"] .term-foot{background:#f3f7f3;border-top:1px solid #c4d6c8}
+[data-theme="light"] .term-foot p{color:#4a6151}
+[data-theme="light"] .quick button{background:#eef4ef;color:#4a6151;border:1px solid #b6d4bc}
+[data-theme="light"] .quick button:hover{color:var(--green);border-color:var(--green)}
+[data-theme="light"] .card{background:linear-gradient(145deg,#ffffff,#f3f7f3)}
+[data-theme="light"] .featured{border:1px solid #b6d4bc;background:linear-gradient(115deg,#eef4ef,#e2ebe4)}
+[data-theme="light"] .featured p{color:#182b1d}
+[data-theme="light"] .ticks li{color:#182b1d}
+[data-theme="light"] .card.forbid{border-color:#d4a8a0;background:linear-gradient(150deg,#fbeae6,#f5e0db)}
+[data-theme="light"] code{background:#eef4ef;border:1px solid #b6d4bc}
+[data-theme="light"] .entity{background:#ffffff;border:1px solid #c4d6c8}
+[data-theme="light"] .entity .no{color:#4a6151}
+[data-theme="light"] .entity p{color:#4a6151}
+[data-theme="light"] .entity .type{color:#6a8276}
+[data-theme="light"] .arch{border:1px solid #b6d4bc;background:radial-gradient(ellipse 60% 100% at 50% 0,#eef4ef,#e2ebe4)}
+[data-theme="light"] .arch-caption{color:#4a6151}
+[data-theme="light"] .arch-box{background:#ffffff;border:1px solid #8aa790}
+[data-theme="light"] .arch-box small{color:#4a6151}
+[data-theme="light"] .arch-box.highlight{border-color:var(--green);background:#d4f0db}
+[data-theme="light"] .freedom{border:1px dashed #8aa790;background:#eef4ef;color:#182b1d}
+[data-theme="light"] .ds-card{background:#ffffff}
+[data-theme="light"] .ds-card .num{color:#4a6151}
+[data-theme="light"] .command{background:#ffffff}
+[data-theme="light"] .command p{color:#182b1d}
+[data-theme="light"] .command small{color:#6a8276}
+[data-theme="light"] .behavior{background:#ffffff}
+[data-theme="light"] .example{background:#eef4ef;border:1px solid #b6d4bc}
+[data-theme="light"] .example pre{color:#166534}
+[data-theme="light"] .test-list{color:#182b1d}
+[data-theme="light"] .bonus-box{border:1px solid var(--green);background:linear-gradient(120deg,#eef4ef,#e2ebe4)}
+[data-theme="light"] .bonus-box p{color:#182b1d}
+[data-theme="light"] .bonus-box .score{color:var(--lime);border:1px solid var(--green);background:#d4f0db}
+[data-theme="light"] .bonus-box .score small{color:#4a6151}
+[data-theme="light"] .grading-top .kpi{background:#ffffff;border:1px solid #b6d4bc}
+[data-theme="light"] .grading-top .kpi span{color:#4a6151}
+[data-theme="light"] .grading-top .kpi small{color:#6a8276}
+[data-theme="light"] .grades{background:#ffffff}
+[data-theme="light"] .bar{background:#e2ebe4}
+[data-theme="light"] .footer{color:#4a6151}
+[data-theme="light"] .registry-edit{border:1px solid #b6d4bc;background:#ffffff}
+[data-theme="light"] .registry-edit label{color:#166534}
+[data-theme="light"] .registry-edit textarea{background:#f8faf7;border:1px solid #c4d6c8;color:#182b1d}
+[data-theme="light"] .registry-buttons button{background:var(--green);border:1px solid var(--green);color:#ffffff}
+[data-theme="light"] .registry-buttons button.secondary{background:#ffffff;border-color:#b6d4bc;color:var(--green)}
+[data-theme="light"] .registry-output{border:1px solid #b6d4bc;background:#ffffff}
+[data-theme="light"] .state-view{color:#166534;border:1px solid #c4d6c8;background:#f3f7f3}
+[data-theme="light"] .hint-text{color:#4a6151}
+@media(max-width:860px){[data-theme="light"] .nav{background:#ffffff;box-shadow:0 24px 35px #00000020}}
+/* ===== CONTRACT TABLES & TAGS ===== */
+.doc-table{width:100%;border-collapse:collapse;margin:14px 0 4px;font-size:12.3px;line-height:1.9;background:#08140c}
+.doc-table caption{caption-side:top;text-align:right;color:var(--lime);font-weight:700;font-size:12.8px;padding:0 0 8px}
+.doc-table th,.doc-table td{border:1px solid var(--line2);padding:8px 11px;text-align:right;vertical-align:top}
+.doc-table th{background:#143520;color:var(--green);font-weight:800}
+.doc-table tbody tr:nth-child(even){background:rgba(125,246,154,.04)}
+.doc-table code{white-space:nowrap}
+.req{display:inline-block;font:700 10px var(--mono);color:var(--lime);background:rgba(125,246,154,.1);border:1px solid var(--line2);border-radius:5px;padding:1px 7px;margin-inline-start:7px;direction:ltr;white-space:nowrap}
+[data-theme="light"] .doc-table{background:#ffffff}
+[data-theme="light"] .doc-table th{background:#e2f4e7}
+[data-theme="light"] .doc-table td{color:#182b1d}
+
+/* ===== V16: SEPARATED SECTION PANELS, SCROLL-REVEAL & MICRO-INTERACTIONS ===== */
+.read-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(125,246,154,.08);overflow:hidden;pointer-events:none}
+.read-progress span{display:block;height:100%;width:0%;background:linear-gradient(270deg,#2fa850,#7df69a,#b3ffa8);transition:width .1s linear;border-radius:3px 0 0 3px}
+[data-theme="light"] .read-progress{background:rgba(21,128,61,.08)}
+[data-theme="light"] .read-progress span{background:linear-gradient(270deg,#15803d,#22c55e)}
+
+.nav a{position:relative;padding-block:4px;transition:color .2s ease}
+.nav a::after{content:"";position:absolute;right:0;left:0;bottom:-2px;height:2px;border-radius:2px;background:var(--green);transform:scaleX(0);transform-origin:center;transition:transform .22s cubic-bezier(.22,1,.36,1)}
+.nav a:hover::after,.nav a.active::after{transform:scaleX(1)}
+
+/* Distinct elevated section panels */
+.section{position:relative;padding:38px 36px;margin-block:8px;border:1px solid #254630;border-radius:20px;background:linear-gradient(160deg,#0c1810,#08110b);box-shadow:0 16px 40px rgba(0,0,0,.38);overflow:hidden}
+.section::before{content:"";position:absolute;top:0;right:24px;left:24px;height:2px;background:linear-gradient(90deg,transparent,rgba(125,246,154,.45),transparent);pointer-events:none}
+[data-theme="light"] .section{background:linear-gradient(160deg,#ffffff,#f7fbf8);border-color:#c4d9c9;box-shadow:0 10px 28px rgba(15,45,25,.06)}
+[data-theme="light"] .section::before{background:linear-gradient(90deg,transparent,rgba(21,128,61,.35),transparent)}
+
+/* Decorative vertical connector between panels */
+.divider{border:0;width:2px;height:24px;margin:0 auto;background:linear-gradient(180deg,transparent,var(--line2),transparent);opacity:.85}
+
+/* Micro-interactions on cards, entities, tables & buttons */
+.card,.entity,.ds-card,.behavior,.toc-item{transition:transform .22s cubic-bezier(.22,1,.36,1),border-color .22s ease,box-shadow .22s ease}
+.card:hover,.entity:hover,.ds-card:hover,.behavior:hover,.toc-item:hover{transform:translateY(-3px);border-color:var(--green);box-shadow:0 10px 24px rgba(0,0,0,.28)}
+[data-theme="light"] .card:hover,[data-theme="light"] .entity:hover,[data-theme="light"] .ds-card:hover,[data-theme="light"] .behavior:hover,[data-theme="light"] .toc-item:hover{box-shadow:0 8px 20px rgba(21,128,61,.12)}
+.card.forbid:hover{border-color:var(--red)}
+.doc-table tbody tr{transition:background-color .16s ease}
+.doc-table tbody tr:hover{background:rgba(125,246,154,.09)}
+[data-theme="light"] .doc-table tbody tr:hover{background:rgba(21,128,61,.06)}
+.btn{transition:background-color .18s ease,border-color .18s ease,transform .16s ease}
+.btn:hover{transform:translateY(-1px)}
+
+/* Visual distinction for interactive lab */
+.registry-lab{padding:16px;border:1px dashed #3d754c;border-radius:16px;background:rgba(16,42,24,.35)}
+[data-theme="light"] .registry-lab{border-color:#74a882;background:rgba(21,128,61,.04)}
+
+/* Scroll-Reveal Animations (progressive enhancement via .js-anim) */
+.js-anim .section{opacity:0;transform:translateY(28px) scale(.992);transition:opacity .58s cubic-bezier(.22,1,.36,1),transform .58s cubic-bezier(.22,1,.36,1)}
+.js-anim .section.is-visible{opacity:1;transform:translateY(0) scale(1)}
+
+.js-anim .section .card,
+.js-anim .section .entity,
+.js-anim .section .ds-card,
+.js-anim .section .behavior,
+.js-anim .section .toc-item,
+.js-anim .section .grade,
+.js-anim .section .example,
+.js-anim .section .featured,
+.js-anim .section .bonus-box,
+.js-anim .section .arch,
+.js-anim .section .doc-table{opacity:0;transform:translateY(14px);transition:opacity .45s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1),border-color .22s ease,box-shadow .22s ease}
+
+.js-anim .section.is-visible .card,
+.js-anim .section.is-visible .entity,
+.js-anim .section.is-visible .ds-card,
+.js-anim .section.is-visible .behavior,
+.js-anim .section.is-visible .toc-item,
+.js-anim .section.is-visible .grade,
+.js-anim .section.is-visible .example,
+.js-anim .section.is-visible .featured,
+.js-anim .section.is-visible .bonus-box,
+.js-anim .section.is-visible .arch,
+.js-anim .section.is-visible .doc-table{opacity:1;transform:translateY(0)}
+
+.js-anim .section.is-visible .entity:nth-child(2),
+.js-anim .section.is-visible .behavior:nth-child(2),
+.js-anim .section.is-visible .ds-card:nth-child(2),
+.js-anim .section.is-visible .card:nth-child(2),
+.js-anim .section.is-visible .toc-item:nth-child(2){transition-delay:.05s}
+.js-anim .section.is-visible .entity:nth-child(3),
+.js-anim .section.is-visible .behavior:nth-child(3),
+.js-anim .section.is-visible .ds-card:nth-child(3),
+.js-anim .section.is-visible .toc-item:nth-child(3){transition-delay:.1s}
+.js-anim .section.is-visible .entity:nth-child(4),
+.js-anim .section.is-visible .behavior:nth-child(4),
+.js-anim .section.is-visible .toc-item:nth-child(4){transition-delay:.14s}
+.js-anim .section.is-visible .entity:nth-child(n+5),
+.js-anim .section.is-visible .behavior:nth-child(n+5),
+.js-anim .section.is-visible .toc-item:nth-child(n+5){transition-delay:.18s}
+
+@media(max-width:860px){.section{padding:28px 22px;border-radius:16px}.divider{height:18px}}
+@media(max-width:600px){.section{padding:22px 16px;border-radius:14px}.divider{height:14px}.registry-lab{padding:10px}}
+@media(prefers-reduced-motion:reduce){.js-anim .section,.js-anim .section *{opacity:1!important;transform:none!important;transition:none!important}}
+@media print{.read-progress,.divider{display:none!important}.section{opacity:1!important;transform:none!important;box-shadow:none!important;border:1px solid #ccc!important;margin-block:12px!important;padding:18px!important}.section::before{display:none!important}.js-anim .section,.js-anim .section *{opacity:1!important;transform:none!important}}
+
+/* ===== V17: CLEAN TWO-COUNTER GUIDE BOX ===== */
+.counter-guide{margin-top:20px;padding:22px 24px;border:1px solid #356e45;border-radius:15px;background:linear-gradient(145deg,#112618,#0a150e)}
+.counter-guide-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.counter-guide-head h3{font-size:15.5px;margin:0;color:var(--lime)}
+.counter-guide-head span{font:700 10.5px var(--mono);color:var(--green);direction:ltr}
+.counter-defs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.counter-def{padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:#0a180f}
+.counter-def code{display:inline-block;margin-bottom:6px;font-weight:800;font-size:12.5px}
+.counter-def p{margin:0;font-size:12.4px;color:#cfe2d3;line-height:1.95}
+.counter-rules{list-style:none;padding:12px 0 0;margin:0;border-top:1px solid var(--line);display:grid;gap:7px}
+.counter-rules li{position:relative;padding-inline-start:18px;font-size:12.5px;color:#d6e7d9;line-height:1.9}
+.counter-rules li::before{content:'•';position:absolute;inset-inline-start:2px;color:var(--green);font-weight:900}
+[data-theme="light"] .counter-guide{background:linear-gradient(145deg,#f1f8f3,#e7f3ea);border-color:#9fc9ab}
+[data-theme="light"] .counter-def{background:#ffffff;border-color:#c4d9c9}
+[data-theme="light"] .counter-def p,[data-theme="light"] .counter-rules li{color:#182b1d}
+@media(max-width:600px){.counter-defs{grid-template-columns:1fr}.counter-guide{padding:18px 16px}}
+
+/* ===== V31: PURE 3-LAYER MVC ARCHITECTURE DIAGRAM ===== */
+.mvc-diagram-wrap{margin-top:16px;border:1px solid #3a6645;border-radius:16px;background:radial-gradient(ellipse 65% 100% at 50% 0,#152e1c,#08120b);padding:24px 16px;overflow-x:auto}
+.mvc-svg{display:block;width:100%;min-width:680px;height:auto;direction:ltr;font-family:var(--mono)}
+.mvc-lane{fill:rgba(255,255,255,.025);stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 5}
+.mvc-lane-view{stroke:rgba(56,189,248,.55);fill:rgba(56,189,248,.05)}
+.mvc-lane-ctrl{stroke:rgba(251,146,60,.55);fill:rgba(251,146,60,.05)}
+.mvc-lane-model{stroke:rgba(74,222,128,.55);fill:rgba(74,222,128,.05)}
+.mvc-lane-title{font-size:13px;font-weight:800;letter-spacing:1.8px;text-anchor:middle}
+.mvc-t-view{fill:#38bdf8}
+.mvc-t-ctrl{fill:#fb923c}
+.mvc-t-model{fill:#4ade80}
+.mvc-node{stroke-width:2.2}
+.mvc-n-view{fill:#0c2233;stroke:#38bdf8}
+.mvc-n-ctrl{fill:#2b180a;stroke:#fb923c}
+.mvc-n-model{fill:#0d2917;stroke:#4ade80}
+.mvc-node-title{fill:#f3faf5;font-size:14px;font-weight:800;text-anchor:middle;dominant-baseline:central}
+.mvc-node-sub{fill:#b7d0bf;font-size:11px;font-weight:500;text-anchor:middle;dominant-baseline:central;font-family:var(--sans)}
+.mvc-edge{fill:none;stroke:#4ade80;stroke-width:2}
+.mvc-edge-view{stroke:#38bdf8}
+.mvc-edge-ctrl{stroke:#fb923c}
+.mvc-pill{fill:#0b170f;stroke:#2d5439;stroke-width:1.1}
+.mvc-pill-view{stroke:rgba(56,189,248,.55)}
+.mvc-pill-ctrl{stroke:rgba(251,146,60,.55)}
+.mvc-pill-model{stroke:rgba(74,222,128,.55)}
+.mvc-edge-label{fill:#e0f2e6;font-size:10.5px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+[data-theme="light"] .mvc-diagram-wrap{border-color:#b6d4bc;background:radial-gradient(ellipse 65% 100% at 50% 0,#f4faf5,#eaf4ec)}
+[data-theme="light"] .mvc-lane-view{stroke:rgba(2,132,199,.45);fill:rgba(56,189,248,.07)}
+[data-theme="light"] .mvc-lane-ctrl{stroke:rgba(234,88,12,.45);fill:rgba(251,146,60,.07)}
+[data-theme="light"] .mvc-lane-model{stroke:rgba(22,163,74,.45);fill:rgba(74,222,128,.07)}
+[data-theme="light"] .mvc-t-view{fill:#0284c7}
+[data-theme="light"] .mvc-t-ctrl{fill:#ea580c}
+[data-theme="light"] .mvc-t-model{fill:#16a34a}
+[data-theme="light"] .mvc-n-view{fill:#e0f2fe;stroke:#0284c7}
+[data-theme="light"] .mvc-n-ctrl{fill:#ffedd5;stroke:#ea580c}
+[data-theme="light"] .mvc-n-model{fill:#dcfce7;stroke:#16a34a}
+[data-theme="light"] .mvc-node-title{fill:#112217}
+[data-theme="light"] .mvc-node-sub{fill:#3f5847}
+[data-theme="light"] .mvc-edge{stroke:#16a34a}
+[data-theme="light"] .mvc-edge-view{stroke:#0284c7}
+[data-theme="light"] .mvc-edge-ctrl{stroke:#ea580c}
+[data-theme="light"] .mvc-pill{fill:#ffffff;stroke:#b6d4bc}
+[data-theme="light"] .mvc-pill-view{stroke:rgba(2,132,199,.5)}
+[data-theme="light"] .mvc-pill-ctrl{stroke:rgba(234,88,12,.5)}
+[data-theme="light"] .mvc-pill-model{stroke:rgba(22,163,74,.5)}
+[data-theme="light"] .mvc-edge-label{fill:#1a2e21}
+
+/* ===== INLINE TERMINAL INPUT ===== */
+.terminal-body{height:385px;cursor:text}
+.term-inline-form{display:flex;align-items:center;gap:7px;margin-top:4px;white-space:normal}
+.term-inline-form label{font:800 12.3px/1.85 var(--mono);color:var(--green);white-space:nowrap;flex-shrink:0}
+.term-inline-form input{flex:1;min-width:0;border:0;outline:0;padding:0;margin:0;background:transparent;color:#e8f8e9;font:12.3px/1.85 var(--mono);caret-color:var(--green);direction:ltr;text-align:left}
+.term-inline-form input:focus-visible{outline:none}
+.term-inline-form input::placeholder{color:#5e8068}
+[data-theme="light"] .term-inline-form input{color:#182b1d}
+[data-theme="light"] .term-inline-form input::placeholder{color:#8aa790}
+@media(max-width:600px){.terminal-body{height:320px}.term-inline-form label,.term-inline-form input{font-size:11px}}
+@media print{.term-inline-form{display:none!important}}
+
+/* ===== V34: SHARED VS CYCLE COMPARISON + FIXED RTL EXAMPLE BOX ===== */
+.trap-box{margin-top:18px;padding:20px 22px;background:#08170d;border:1px solid #31663d;border-radius:14px}
+.trap-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.trap-head h3{font-size:15px;font-weight:800;color:var(--text);margin:0}
+.trap-head span{font-size:12px;color:var(--mute)}
+.trap-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.trap-card{padding:15px 16px;border-radius:11px;border:1px solid var(--line);background:#0c1c12;display:flex;flex-direction:column;gap:10px}
+.trap-card.valid{border-color:#2f7d47;background:linear-gradient(155deg,#0f2617,#0a170e)}
+.trap-card.invalid{border-color:#703d37;background:linear-gradient(155deg,#211311,#120e0d)}
+.trap-badge{display:inline-flex;align-items:center;gap:6px;font:700 11px var(--mono);letter-spacing:.3px;align-self:flex-start;direction:ltr}
+.trap-card.valid .trap-badge{color:var(--green)}
+.trap-card.invalid .trap-badge{color:var(--red)}
+.trap-card pre{margin:0;padding:10px 13px;border-radius:8px;background:#050e08;border:1px solid #21402a;font:12px/1.85 var(--mono);color:#d0f2d7;direction:ltr;text-align:left;overflow-x:auto}
+.trap-card.invalid pre{background:#120a09;border-color:#4f2c28;color:#ffd0cb}
+.trap-card p{margin:0;font-size:12.4px;color:var(--mute);line-height:1.95}
+[data-theme="light"] .trap-box{background:#eef5f0;border-color:#b6d4bc}
+[data-theme="light"] .trap-card.valid{background:#ffffff;border-color:#86c997}
+[data-theme="light"] .trap-card.invalid{background:#fff8f7;border-color:#e2a8a1}
+[data-theme="light"] .trap-card pre{background:#f3f8f4;border-color:#c6dccb;color:#14532d}
+[data-theme="light"] .trap-card.invalid pre{background:#fef2f2;border-color:#f0c4bf;color:#991b1b}
+.example{grid-template-columns:1.4fr minmax(220px,.85fr);gap:20px}
+.example pre{padding:12px 15px;border-radius:9px;background:#050e08;border:1px solid #21402a;overflow-x:auto}
+[data-theme="light"] .example pre{background:#ffffff;border-color:#c4d6c8}
+@media(max-width:720px){.trap-grid{grid-template-columns:1fr}}
+</style>
+<script>(function(){try{var s=localStorage.getItem('mini-npm-theme');var t=s||(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='light'?'#f3f7f3':'#061009');}catch(e){}})();</script>
+</head>
+<body>
+<a class="skip" href="#main">رفتن به متن صورت‌پروژه</a>
+<header class="topbar"><div class="wrap">
+ <a class="brand" href="#home" aria-label="صفحه اول Mini NPM"><span class="brand-icon">&gt;_</span><span>mini-<span class="marker">npm</span></span></a>
+ <nav id="siteNav" class="nav" aria-label="فهرست صفحه"><a href="#mission">معرفی</a><a href="#entities">موجودیت‌ها</a><a href="#structure">معماری</a><a href="#datastructures">ساختمان‌داده</a><a href="#rules">محدودیت‌ها</a><a href="#commands">دستورها</a><a href="#logic">قوانین</a><a href="#errors">خطاها</a><a href="#tests">آزمایشگاه</a><a href="#bonus">امتیازی</a><a href="#grading">تحویل</a></nav>
+ <div class="top-pill">DATA STRUCTURES / ASSIGNMENT</div>
+ <button id="themeToggle" class="theme-toggle" type="button" aria-label="تغییر حالت روشن/تاریک" aria-pressed="false" title="تغییر حالت روشن/تاریک"><svg class="theme-icon icon-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"><line x1="12" y1="2.5" x2="12" y2="5.5"/><line x1="12" y1="18.5" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="5.5" y2="12"/><line x1="18.5" y1="12" x2="21.5" y2="12"/><line x1="5" y1="5" x2="7" y2="7"/><line x1="17" y1="17" x2="19" y2="19"/><line x1="5" y1="19" x2="7" y2="17"/><line x1="17" y1="7" x2="19" y2="5"/></g></svg><svg class="theme-icon icon-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg></button>
+ <button id="menuToggle" class="menu-toggle" type="button" aria-label="بازکردن فهرست" aria-expanded="false" aria-controls="siteNav">☰</button>
+</div><div class="read-progress" aria-hidden="true"><span id="readProgressBar"></span></div></header>
+<main id="main">
+<section id="home" class="wrap hero" aria-labelledby="heroTitle">
+ <div><div class="eyebrow">COURSE PROJECT / ASSIGNMENT SPECIFICATION</div><h1 id="heroTitle">پیاده‌سازی <span class="accent">Package</span><br><span class="accent">Manager</span> از صفر</h1>
+ <p class="hero-lead">در این پروژه هدف پیاده‌سازی یک <strong>مدیر پکیج ترمینالی</strong> در حافظه می‌باشد که قادر به شناسایی وابستگی‌های پکیج‌ها، انجام صحیح عملیات نصب و حذف و مقاومت در برابر چرخه‌ها و خطاهای احتمالی باشد. قوانین و خروجی مورد انتظار مشخص است؛ طراحی داخلی و نحوه پیاده‌سازی به عهده و خلاقیت خودتان خواهد بود.</p>
+ </div>
+ <div class="terminal" aria-label="ترمینال آموزشی Mini NPM"><div class="terminal-bar"><div class="dots"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="term-title">student@linux:~/mini-npm — shell</div><span class="demo-label">LIVE DEMO</span></div>
+ <div id="termOutput" class="terminal-body" role="log" aria-live="polite" aria-relevant="additions text"><div class="term-line t-dim"># Interactive in-browser mini-npm simulator — type any command directly inside this terminal to explore dependency resolution, installation, and removal.</div><div class="term-line"><span class="t-prompt">mini-npm&gt; </span>help</div><div class="term-line">Commands: install, remove, list, history, help, exit, quit</div><div class="term-line t-dim"># Try typing "install app" and pressing Enter, then confirm with "y" or cancel with "n" to observe how packages and dependencies behave.</div><form class="term-inline-form" id="termForm"><label id="termPrompt" for="termInput">mini-npm&gt;</label><input id="termInput" autocomplete="off" spellcheck="false" aria-label="دستور ترمینال" placeholder="type a command..." dir="ltr"></form></div></div>
+</section>
+<hr class="divider">
+<section id="mission" class="wrap section"><div class="section-head"><div class="section-code">01 / PROJECT MISSION</div><h2>A) معرفی پروژه و اهداف آن</h2><p class="lead">هدف این پروژه، پیاده‌سازی یک مدیر پکیج خط فرمان در حافظه است تا مفاهیم ساختمان داده و گراف وابستگی را در یک سیستم واقعی تجربه کنید. نصب واقعی نرم‌افزار، دانلود از اینترنت و Versioning جزو الزامات پروژه نیست.</p></div>
+<div class="featured"><span class="mark">i</span><p><strong>نحوه مقداردهی Registry در برنامه شما:</strong> تعریف پکیج‌ها و وابستگی‌های اولیه را از منطق اصلی برنامه جدا نگه دارید (ترجیحاً با خواندن یک فایل JSON استاندارد به قالب <code>{"pkg": ["dep1", "dep2"]}</code> مانند شبیه‌ساز همین صفحه، یا یک ماژول مقداردهی مجزا) تا در جلسه تحویل بتوان بدون دستکاری کد هسته، برنامه را با یک Registry جدید آزمایش کرد.</p></div>
+</section>
+<hr class="divider">
+<section id="entities" class="wrap section"><div class="section-head"><div class="section-code">02 / CONCEPTUAL ENTITIES</div><h2>B) موجودیت‌های مفهومی و نقش لایه‌ها</h2><p class="lead">برای حفظ خوانایی و امکان ارزیابی یکپارچه، یک پیاده‌سازی استاندارد باید مسئولیت‌های مفهومی زیر را در قالب <strong>معماری MVC</strong> پوشش دهد. طراحی کلاس‌ها، متدها، متغیرهای داخلی و الگوریتم‌های حل مسئله کاملاً بر عهدهٔ خودتان است.</p></div>
+<div class="entity-grid">
+ <article class="entity"><span class="no">ENTITY 01</span><h3>PackageDefinition</h3><p>تعریف ثابت هر پکیج در Registry شامل نام یکتا و فهرست وابستگی‌های مستقیم آن.</p><div class="type mvc-model">MVC: MODEL</div></article>
+ <article class="entity"><span class="no">ENTITY 02</span><h3>PackageRegistry</h3><p>ثبت، جست‌وجو و نگهداری کاتالوگ پکیج‌ها و روابط وابستگی آن‌ها.</p><div class="type mvc-model">MVC: MODEL</div></article>
+ <article class="entity"><span class="no">ENTITY 03</span><h3>InstalledPackage</h3><p>نگهداری وضعیت هر پکیج نصب‌شده و تفکیک نصب مستقیم از وابستگی.</p><div class="type mvc-model">MVC: MODEL</div></article>
+ <article class="entity"><span class="no">ENTITY 04</span><h3>InstalledStore</h3><p>مالک مجموعهٔ پکیج‌های نصب‌شده؛ هرگونه افزودن، حذف یا تغییر وضعیت صرفاً از طریق این بخش انجام می‌شود.</p><div class="type mvc-model">MVC: MODEL</div></article>
+ <article class="entity"><span class="no">ENTITY 05</span><h3>CommandHistory</h3><p>ثبت و نگهداری تاریخچهٔ دستورهای موفق تغییر وضعیت از جدید به قدیم.</p><div class="type mvc-model">MVC: MODEL</div></article>
+ <article class="entity"><span class="no">ENTITY 06</span><h3>DependencyResolver</h3><p>تحلیل گراف وابستگی، تشخیص چرخه و محاسبهٔ تغییرات نصب یا حذف پیش از اعمال.</p><div class="type mvc-controller">MVC: CONTROLLER</div></article>
+ <article class="entity"><span class="no">ENTITY 07</span><h3>PackageManager</h3><p>هماهنگ‌کنندهٔ جریان عملیات بین رابط کاربری، تحلیل وابستگی و وضعیت سیستم.</p><div class="type mvc-controller">MVC: CONTROLLER</div></article>
+ <article class="entity"><span class="no">ENTITY 08</span><h3>CommandInterface</h3><p>دریافت و تجزیهٔ دستورهای کاربر، خواندن <code>y/n</code> و نمایش خروجی‌ها بدون منطق گرافی.</p><div class="type mvc-view">MVC: VIEW</div></article>
+</div>
+<div class="freedom"><span class="marker">◈</span><span><b>آزادی طراحی و معیار ارزیابی:</b> پیاده‌سازی پروژه بر پایه <strong>معماری MVC</strong> الزامی است. تغییر ساختار داخلی (نام و تعداد کلاس‌ها، متدها و الگوریتم‌ها) تا زمانی که <strong>به منزله تغییر معماری MVC نشود</strong> آزاد است؛ ملاک ارزیابی، <strong>صحت رفتار بیرونی برنامه</strong>، <strong>تفکیک صحیح لایه‌های MVC</strong>، <strong>استفادهٔ واقعی از ساختمان داده‌های دست‌ساز</strong> و <strong>تسلط در جلسهٔ دفاع</strong> خواهد بود.</span></div>
+</section>
+<hr class="divider">
+<section id="structure" class="wrap section"><div class="section-head"><div class="section-code">03 / MVC ARCHITECTURE</div><h2>C) اصل معماری MVC</h2></div>
+<div class="mvc-diagram-wrap" aria-label="نمودار معماری MVC">
+<svg class="mvc-svg" viewBox="0 0 960 320" role="img" aria-label="Pure MVC Architecture: View, Controller, and Model layers">
+ <defs>
+ <marker id="arr-model" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1.5 L 9 5 L 0 8.5 z" class="mvc-t-model"/></marker>
+ <marker id="arr-view" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1.5 L 9 5 L 0 8.5 z" class="mvc-t-view"/></marker>
+ <marker id="arr-ctrl" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M 0 1.5 L 9 5 L 0 8.5 z" class="mvc-t-ctrl"/></marker>
+ </defs>
+
+ <rect class="mvc-lane mvc-lane-view" x="24" y="18" width="220" height="284" rx="18"/>
+ <text class="mvc-lane-title mvc-t-view" x="134" y="48">VIEW</text>
+ <rect class="mvc-lane mvc-lane-ctrl" x="370" y="18" width="220" height="284" rx="18"/>
+ <text class="mvc-lane-title mvc-t-ctrl" x="480" y="48">CONTROLLER</text>
+ <rect class="mvc-lane mvc-lane-model" x="716" y="18" width="220" height="284" rx="18"/>
+ <text class="mvc-lane-title mvc-t-model" x="826" y="48">MODEL</text>
+
+ <path class="mvc-edge mvc-edge-view" d="M 206 144 C 265 110, 345 110, 405 144" marker-end="url(#arr-view)"/>
+ <path class="mvc-edge mvc-edge-ctrl" d="M 405 206 C 345 240, 265 240, 206 206" marker-end="url(#arr-ctrl)"/>
+ <path class="mvc-edge mvc-edge-ctrl" d="M 555 144 C 615 110, 695 110, 754 144" marker-end="url(#arr-ctrl)"/>
+ <path class="mvc-edge" d="M 754 206 C 695 240, 615 240, 555 206" marker-end="url(#arr-model)"/>
+
+ <g transform="translate(307, 114)"><rect class="mvc-pill mvc-pill-view" x="-56" y="-12" width="112" height="24" rx="12"/><text class="mvc-edge-label" x="0" y="0">commands / y,n</text></g>
+ <g transform="translate(307, 236)"><rect class="mvc-pill mvc-pill-ctrl" x="-60" y="-12" width="120" height="24" rx="12"/><text class="mvc-edge-label" x="0" y="0">preview / output</text></g>
+ <g transform="translate(653, 114)"><rect class="mvc-pill mvc-pill-ctrl" x="-54" y="-12" width="108" height="24" rx="12"/><text class="mvc-edge-label" x="0" y="0">query / update</text></g>
+ <g transform="translate(653, 236)"><rect class="mvc-pill mvc-pill-model" x="-48" y="-12" width="96" height="24" rx="12"/><text class="mvc-edge-label" x="0" y="0">data / state</text></g>
+
+ <g><circle class="mvc-node mvc-n-view" cx="134" cy="175" r="74"/><text class="mvc-node-title" x="134" y="156">CLI / I/O</text><text class="mvc-node-sub" x="134" y="182">دریافت دستور و تأیید</text><text class="mvc-node-sub" x="134" y="200">نمایش خروجی و خطا</text></g>
+ <g><circle class="mvc-node mvc-n-ctrl" cx="480" cy="175" r="74"/><text class="mvc-node-title" x="480" y="156">Core Logic</text><text class="mvc-node-sub" x="480" y="182">تحلیل وابستگی و چرخه</text><text class="mvc-node-sub" x="480" y="200">هماهنگی عملیات</text></g>
+ <g><circle class="mvc-node mvc-n-model" cx="826" cy="175" r="74"/><text class="mvc-node-title" x="826" y="156">State &amp; Data</text><text class="mvc-node-sub" x="826" y="182">نگهداری Registry</text><text class="mvc-node-sub" x="826" y="200">وضعیت نصب و تاریخچه</text></g>
+</svg>
+</div>
+</section>
+<hr class="divider">
+<section id="datastructures" class="wrap section"><div class="section-head"><div class="section-code">04 / REQUIRED DATA STRUCTURES</div><h2>D) ساختمان داده‌های الزامی</h2><p class="lead">پیاده‌سازی دستی، جنریک و استفادهٔ واقعی از هر سه ساختمان دادهٔ زیر در هستهٔ برنامه الزامی است. انتخاب جایگاه مناسب برای هر ساختار بخشی از طراحی مهندسی خودتان است و در جلسهٔ دفاع باید دلیل انتخاب خود را توضیح دهید.</p></div>
+<div class="ds"><article class="ds-card"><div class="num">REQUIRED 01 / LIST</div><h3>Linked List</h3><p>ساختار خطی پویا برای نگهداری مجموعه‌های متغیر بدون محدودیت اندازهٔ ثابت.</p></article><article class="ds-card"><div class="num">REQUIRED 02 / FIFO</div><h3>Queue</h3><p>ساختار <code>FIFO</code> برای صف‌بندی و پردازش ترتیبی گره‌ها یا عملیات.</p></article><article class="ds-card"><div class="num">REQUIRED 03 / LIFO</div><h3>Stack</h3><p>ساختار <code>LIFO</code> برای مدیریت جریان‌های برگشتی، پیمایش‌ها یا ثبت سوابق.</p></article></div>
+<div class="featured"><span class="mark">i</span><p><strong>الزام جنریک‌سازی و کاربرد واقعی:</strong> هر سه ساختمان داده باید جنریک تعریف شوند (مانند <code>LinkedList&lt;T&gt;</code>، <code>Queue&lt;T&gt;</code> و <code>Stack&lt;T&gt;</code>) و واقعاً در جریان اصلی برنامه به کار بروند؛ تعریف صوری و بدون استفادهٔ آن‌ها قابل قبول نیست.</p></div>
+</section>
+<hr class="divider">
+<section id="rules" class="wrap section"><div class="section-head"><div class="section-code">05 / IMPLEMENTATION RULES</div><h2>E) قوانین پیاده‌سازی: موارد مجاز و غیرمجاز</h2><p class="lead">هدف اصلی این پروژه سنجش تسلط شما بر پیاده‌سازی و استفاده عملی از ساختمان داده‌ها می‌باشد و نه صرفاً رسیدن به خروجی مشابه. رعایت محدودیت‌های این بخش برای تمامی پیاده‌سازی‌ها الزامی است و بر اساس کد و رفتار برنامه ارزیابی خواهد شد.</p></div>
+<div class="grid2"><article class="card"><div class="card-tag">ALLOWED / YES</div><h3>موارد مجاز</h3><ul class="ticks"><li>انواع داده پایه، آرایه‌های معمولی و عملیات استاندارد رشته و ورودی/خروجی</li><li>ثبت و جست‌وجوی داده‌های Registry با ساختار دست‌ساز یا آرایه ساده</li><li>استفاده از ابزارهای استاندارد خواندن فایل و JSON صرفاً برای بارگذاری اولیه Registry و بخش امتیازی</li><li>تعریف کلاس‌ها، ساختارها، توابع و ماژول‌های کمکی بر اساس طراحی دلخواه خودتان</li><li>ساخت ساختمان داده‌های کمکی دیگر، مشروط بر پیاده‌سازی دستی و رعایت محدودیت‌ها</li></ul></article>
+<article class="card forbid"><div class="card-tag">NOT ALLOWED / NO</div><h3>موارد غیرمجاز</h3><ul class="ticks danger"><li>استفاده از پیاده‌سازی‌های آماده برای <code>Linked List</code>، <code>Queue</code> و <code>Stack</code></li><li>جایگزینی منطق اصلی با ساختارهای آماده مانند <code>List</code>، <code>Map</code>، <code>Set</code> و <code>Deque</code></li><li>به‌کارگیری کتابخانه‌های خارجی برای هسته نصب، حذف یا مدیریت وابستگی‌ها</li><li>تعریف صوری ساختمان داده‌ها بدون استفاده واقعی از آن‌ها در منطق سیستم</li></ul></article></div>
+</section>
+<hr class="divider">
+<section id="commands" class="wrap section"><div class="section-head"><div class="section-code">06 / CLI CONTRACT</div><h2>F) قرارداد دستورهای CLI</h2><p class="lead">برنامه باید یک محیط خط فرمان تعاملی داشته باشد و دستورهای زیر را دقیقاً با همین نام‌ها پشتیبانی کند. تطابق عینی متن پیام‌های خروجی الزامی نیست؛ اما «نتیجه» و «اثر وضعیت» هر دستور باید دقیقاً مطابق جدول F-۱ باشد و هر حالت خطا طبق بخش H مدیریت شود.</p></div>
+<div style="overflow-x:auto"><table class="doc-table"><caption>جدول F-۱: قرارداد رفتاری دستورهای CLI</caption><thead><tr><th>دستور و نحو</th><th>رفتار مورد انتظار</th></tr></thead><tbody><tr><td><code>install &lt;package&gt;</code></td><td>نمایش پیش‌نمایش (جدید / از قبل نصب‌شده)، دریافت تأیید <code>y/n</code> و نصب پکیج و وابستگی‌ها بدون تکرار</td></tr><tr><td><code>remove &lt;package&gt;</code></td><td>بررسی مجوز حذف، نمایش پیش‌نمایش (در صف حذف / باقی‌مانده)، دریافت تأیید <code>y/n</code> و حذف ایمن و آبشاری</td></tr><tr><td><code>list</code></td><td>نمایش فهرست پکیج‌های نصب‌شده همراه با مشخص کردن وضعیت هر پکیج (نصب مستقیم یا وابستگی)</td></tr><tr><td><code>history</code></td><td>نمایش خط فرمان عملیات موفق (<code>install</code>، <code>remove</code>، <code>install-json</code>، <code>install-file</code>) از جدید به قدیم</td></tr><tr><td><code>help</code></td><td>نمایش فهرست دستورها و نحو اجرای آن‌ها</td></tr><tr><td><code>exit / quit</code></td><td>پایان امن برنامه و آزادسازی منابع</td></tr></tbody></table></div>
+<p class="note">برای مشاهده نمونه زنده رفتار دستورها می‌توانید آن‌ها را در <a href="#home" style="color:var(--green);text-decoration:underline">شبیه‌ساز ترمینال بالای صفحه</a> آزمایش کنید.</p>
+<div class="featured"><span class="mark">✓</span><p><strong>یک نکتهٔ مهم:</strong> حفظ یکپارچگی وضعیت هنگام خطا یک رفتار داخلی سیستم است؛ پس آن را با دستور عمومی <code>undo</code> اشتباه نگیرید و نیازی به تعریف چنین دستوری در خط فرمان نیست. در صورت افزودن قابلیت‌های اضافی، نباید جایگزین دستورهای الزامی این بخش شوند.</p></div>
+</section>
+<hr class="divider">
+<section id="logic" class="wrap section"><div class="section-head"><div class="section-code">07 / CORE BEHAVIOR</div><h2>G) قوانین اصلی رفتار سیستم</h2><p class="lead">ملاک صحت پروژه، رفتار درست سیستم روی گراف‌های مختلف است و نحوهٔ پیاده‌سازی داخلی (الگوریتم و متغیرها) کاملاً به انتخاب خودتان بستگی دارد. تضمین شش قانون زیر الزامی است:</p></div>
+<div class="behaviors"><article class="behavior"><div class="tag">01 / TRANSITIVE</div><h3>نصب وابستگی‌های چندسطحی</h3><p>پکیج درخواستی و تمامی وابستگی‌های مستقیم و غیرمستقیم آن در همه سطوح بررسی و بدون ایجاد نسخهٔ تکراری نصب می‌شوند.</p></article><article class="behavior"><div class="tag">02 / REINSTALL</div><h3>نصب مجدد و ارتقا به مستقیم</h3><p>نصب مجدد پکیجی که از قبل مستقیم نصب شده بی‌اثر است؛ اما اگر صرفاً به‌عنوان وابستگی نصب شده باشد، بدون ایجاد تغییر در وابستگی‌هایش به نصب مستقیم ارتقا می‌یابد.</p></article><article class="behavior"><div class="tag">03 / SAFE REMOVE</div><h3>حذف ایمن و آبشاری</h3><p>پکیجی که صرفاً به‌عنوان وابستگی نصب شده یا همچنان مورد نیاز پکیج نصب‌شدهٔ دیگری باشد، قابل حذف نیست و باید بلافاصله با خطا رد شود؛ با حذف یک پکیج مستقیمِ مجاز، وابستگی‌های بلااستفادهٔ آن نیز به‌صورت آبشاری آزاد می‌شوند.</p></article><article class="behavior"><div class="tag">04 / CYCLE</div><h3>تشخیص وابستگی حلقوی</h3><p>وجود چرخه در مسیر وابستگی‌های درخواست باید شناسایی و با نمایش مسیر چرخه رد شود، بدون آنکه وابستگی مشترک با چرخه اشتباه گرفته شود.</p></article><article class="behavior"><div class="tag">05 / ATOMIC</div><h3>یکپارچگی عملیات (همه یا هیچ)</h3><p>در صورت بروز هرگونه خطا (چرخه یا پکیج ناموجود) یا لغو عملیات با <code>n</code>، وضعیت سیستم باید دقیقاً دست‌نخورده باقی بماند.</p></article><article class="behavior"><div class="tag">06 / DEDUP</div><h3>نادیده گرفتن وابستگی تکراری</h3><p>وابستگی‌های تکراری در تعریف یک پکیج یا Manifest (مانند <code>["ui", "ui"]</code>) باید نادیده گرفته شده و فقط یک‌بار محاسبه شوند.</p></article></div>
+<div class="trap-box">
+ <div class="trap-head"><h3>دام کلاسیک این پروژه: وابستگی مشترک، چرخه نیست!</h3><span>صرفاً دیدنِ دوباره یک گره در پیمایش، به معنای وجود چرخه نیست.</span></div>
+ <div class="trap-grid">
+ <div class="trap-card valid">
+ <span class="trap-badge">✓ SHARED DEPENDENCY (VALID)</span>
+ <pre>A → B → D
+A → C → D</pre>
+ <p>هر دو مسیر به <code>D</code> می‌رسند؛ این حالت کاملاً سالم است. <code>D</code> فقط یک‌بار نصب می‌شود و تا زمانی که حداقل یکی از <code>B</code> یا <code>C</code> باقی باشد، حذف نخواهد شد.</p>
+ </div>
+ <div class="trap-card invalid">
+ <span class="trap-badge">× CIRCULAR DEPENDENCY (INVALID)</span>
+ <pre>A → B → C → A</pre>
+ <p>در این مسیر یک حلقهٔ بسته تشکیل شده است؛ این حالت غیرمجاز است و درخواست باید با نمایش مسیر چرخه و بدون هیچ تغییر ماندگاری رد شود.</p>
+ </div>
+ </div>
+</div>
+</section>
+<hr class="divider">
+<section id="errors" class="wrap section"><div class="section-head"><div class="section-code">08 / ERROR MANAGEMENT</div><h2>H) مدیریت خطاها</h2><p class="lead">تمامی خطاهای احتمالی در طول اجرای برنامه باید به شکل صحیح مدیریت شوند و هیچ خطایی نباید باعث کرش برنامه یا نمایش <code>stack trace</code> خام به کاربر گردد.</p></div>
+<article class="card"><ul class="ticks"><li><strong>حفظ یکپارچگی وضعیت:</strong> در تمامی حالت‌های خطا (از جمله پکیج یا وابستگی ناموجود، وجود چرخه، حذف غیرمجاز، دستور نامعتبر و خطای فایل JSON)، وضعیت پکیج‌های نصب‌شده باید کاملاً بدون تغییر باقی بماند.</li><li><strong>خطاهای اختصاصی:</strong> خطاهای اصلی دامنه (مانند پکیج ناموجود، وابستگی حلقوی، حذف غیرمجاز و دستور نامعتبر) باید به‌صورت خطاها یا Exceptionهای اختصاصی و متمایز پیاده‌سازی و مدیریت شوند.</li><li><strong>شفافیت پیام‌ها:</strong> هر پیام خطا باید نام پکیج یا دستور مشکل‌دار (و در حالت چرخه، مسیر چرخه) را مشخص کند. تطابق دقیق متن پیام‌ها با شبیه‌ساز الزامی نیست.</li><li><strong>خط خالی و پایان ورودی:</strong> خط خالی صرفاً باعث نمایش مجدد prompt می‌شود و دریافت <code>EOF</code> یا خطای خواندن استریم باید به خروج امن معادل <code>exit</code> منجر گردد.</li></ul></article>
+</section>
+<hr class="divider">
+<section id="tests" class="wrap section"><div class="section-head"><div class="section-code">09 / REGISTRY SANDBOX</div><h2>I) آزمایشگاه Registry در مرورگر</h2><p class="lead">در این بخش می‌توانید Registry نمونه را ویرایش کرده و رفتار دستورها را در ترمینال بالای صفحه روی گراف‌های دلخواه آزمایش کنید. اعمال تغییر در Registry صرفاً برای شروع یک آزمایش تازه، وضعیت نصب و تاریخچه شبیه‌ساز را پاک می‌کند.</p></div>
+<div class="registry-lab"><div class="registry-edit"><label for="registryInput">Registry نمونه (نگاشت نام پکیج به آرایه وابستگی‌ها)</label><p>برای مثال می‌توانید یک گراف سالم یا گرافی دارای چرخه تعریف کرده و عملکرد آن را بررسی نمایید.</p><textarea id="registryInput" spellcheck="false" aria-label="تعریف رجیستری آزمایشی">{
+ "app": ["ui", "net"],
+ "ui": ["core", "utils"],
+ "net": ["core"],
+ "core": ["z"],
+ "z": [],
+ "utils": [],
+ "logger": ["utils"],
+ "x": ["y"],
+ "y": ["x"],
+ "selfref": ["selfref"],
+ "broken": ["utils", "ghost"]
+}</textarea><div class="registry-buttons"><button id="applyRegistry" type="button">اعمال و شروع آزمایش جدید</button><button id="loadCycle" type="button" class="secondary">مثال چرخه</button><button id="resetRegistry" type="button" class="secondary">بازنشانی نمونه</button></div><div id="registryStatus" class="status" role="status" aria-live="polite"></div></div>
+<div class="registry-output"><h3>وضعیت شبیه‌ساز</h3><p class="lab-hint">دستورها را مستقیماً در ترمینال بالای صفحه تایپ و اجرا کنید.</p><pre id="stateView" class="state-view">No packages installed.</pre><div class="hint-text">نمونه: با Registry پیش‌فرض، اجرای <code>install app</code> مجاز بوده اما <code>install x</code> به دلیل وجود چرخه رد می‌شود. تغییرات یک درخواست ناموفق هیچ تأثیری بر پکیج‌های نصب‌شده قبلی نخواهد داشت.</div></div></div>
+</section>
+<hr class="divider">
+<section id="bonus" class="wrap section"><div class="section-head"><div class="section-code">10 / OPTIONAL BONUS</div><h2>J) قابلیت امتیازی: نصب از JSON</h2><p class="lead">پیاده‌سازی این بخش اختیاری است و صرفاً پس از تکمیل الزامات اصلی توصیه می‌شود؛ امتیاز آن مازاد بر نمره اصلی پروژه محاسبه می‌شود.</p></div>
+<div class="bonus-box"><div><h3>دریافت وابستگی‌ها از Manifest</h3><p>برنامه باید قادر باشد از یک متن یا فایل JSON معتبر، فهرست وابستگی‌های معرفی‌شده را خوانده و آن‌ها را در قالب یک درخواست یکپارچه نصب نماید. ریشهٔ Manifest یک شیء JSON دارای کلید <code>dependencies</code> است که مقدار آن می‌تواند آرایه‌ای از نام پکیج‌ها یا شیء نگاشت نام پکیج به رشته نسخه باشد؛ مجدداً مدیریت واقعی نسخه‌ها جزو الزامات پروژه نیست.</p><div class="syntax-line"><code>install-json &lt;manifest&gt;</code><code>install-file [path]</code></div><p>پکیج‌های Manifest به ترتیب درج در آرایه، یکی‌یکی پردازش می‌شوند (وابستگی‌های تکراری نادیده گرفته می‌شوند) و اگر آرایه خالی باشد (<code>[]</code>)، بدون پرسش <code>y/n</code> و بدون ثبت در تاریخچه پیام مناسب نمایش داده می‌شود. فرمت نامعتبر، پکیج ناموجود یا وجود چرخه باید منجر به شکست کل درخواست با حفظ یکپارچگی کامل گردد. مسیر پیش‌فرض <code>install-file</code> فایل <code>package.json</code> است.</p></div><div class="score">BONUS<small>امتیاز تشویقی</small></div></div>
+<div class="registry-buttons" style="margin-top:15px"><label class="btn ghost" for="bonusFile" style="cursor:pointer">آزمایش نصب از فایل JSON در شبیه‌ساز</label><input id="bonusFile" type="file" accept=".json,application/json" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" aria-label="انتخاب فایل JSON"></div>
+<div class="example"><p>نمونه‌ای از ساختار Manifest. تمامی قواعد بخش‌های F تا H (از جمله پیش‌نمایش و تأیید تعاملی <code>y/n</code>، ترتیب درخواست‌ها و یکپارچگی کامل) در این بخش نیز برقرار است.</p><pre>{
+ "dependencies": ["ui", "logger"]
+}</pre></div>
+</section>
+<hr class="divider">
+<section id="grading" class="wrap section"><div class="section-head"><div class="section-code">11 / IMPLEMENTATION & DELIVERY</div><h2>K) نکات پیاده‌سازی و تحویل</h2></div>
+<article class="card"><ol class="test-list"><li>سورس کامل و قابل اجرا را همراه با <code>README</code> (نحوه کامپایل/اجرا و دستورها) و راهنمای فنی کوتاه (شرح معماری MVC، دلیل انتخاب جایگاه هر ساختمان داده و تحلیل پیچیدگی عملیات اصلی) تحویل دهید.</li><li>استفاده واقعی و جنریک از هر سه ساختمان داده دست‌ساز (<code>Linked List</code>، <code>Queue</code> و <code>Stack</code>) در مسیر اصلی برنامه الزامی است.</li><li>استفاده از ساختارهای آماده کتابخانه استاندارد زبان (مانند <code>List</code>، <code>Map</code>، <code>Set</code> و <code>Deque</code>) برای منطق اصلی پروژه مجاز نیست.</li><li>تمامی خطاهای بخش H باید مدیریت شوند و هیچ خطایی نباید باعث کرش یا باقی ماندن وضعیت نیمه‌کاره گردد.</li><li>تعریف اولیه Registry باید از منطق هسته جدا باشد تا در جلسه دفاع بتوان برنامه را روی یک Registry جدید آزمایش کرد.</li><li>تمامی حالت‌های عادی و مرزی (نصب چندسطحی، تبدیل وابستگی به نصب مستقیم، نصب مجدد بی‌اثر، حذف آبشاری، چرخه، وابستگی ناموجود و لغو) را پیش از تحویل آزمایش کنید و با تسلط به تمامی بخش‌های پروژه، آمادگی کامل برای ارائه و دفاع از طراحی خود را داشته باشید.</li></ol></article>
+</section>
+</main>
+<footer class="wrap footer"><span>Mini NPM — صورت‌پروژه درس ساختمان داده</span><span class="mono">MINI NPM / DATA STRUCTURES PROJECT</span></footer>
+<script>
+(()=>{
+'use strict';
+const DEFAULT={app:['ui','net'],ui:['core','utils'],net:['core'],core:['z'],z:[],utils:[],logger:['utils'],x:['y'],y:['x'],selfref:['selfref'],broken:['utils','ghost']};
+const CYCLIC={A:['B','C'],B:['D'],C:['D'],D:['A'],logger:[],safe:['logger']};
+const $=id=>document.getElementById(id);
+const output=$('termOutput'),input=$('termInput'),form=$('termForm'),promptEl=$('termPrompt'),registryText=$('registryInput'),stateView=$('stateView'),status=$('registryStatus');
+let registry=Object.create(null),installed=Object.create(null),order=[],history=[],closed=false,pendingAction=null;
+const has=(obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
+const dedup=arr=>Array.from(new Set(arr));
+function cloneRegistry(src){const out=Object.create(null);for(const [k,arr] of Object.entries(src))out[k]=dedup(arr);return out}
+function line(message,kind=''){const div=document.createElement('div');div.className='term-line'+(kind?' '+kind:'');div.textContent=message;output.insertBefore(div,form);while(output.childElementCount>181&&output.firstElementChild!==form)output.removeChild(output.firstElementChild);output.scrollTop=output.scrollHeight}
+function renderState(){stateView.textContent=order.length?order.map(name=>`${name.padEnd(14,' ')} [${installed[name].isDirect?'direct':'dependency'}]`).join('\n'):'No packages installed.'}
+function setPending(action){pendingAction=action;if(promptEl)promptEl.textContent=action?'Confirm [y/n]:':'mini-npm>';input.placeholder=action?'y or n':'type a command...'}
+function clean(){installed=Object.create(null);order=[];history=[];closed=false;setPending(null);renderState()}
+function installCheck(name){const colors=Object.create(null),trail=[];function visit(n){if(!has(registry,n))throw new Error(`Package '${n}' was not found in Registry.`);if(colors[n]===1){const start=trail.indexOf(n);throw new Error('Circular dependency: '+trail.slice(start).concat([n]).join(' -> '))}if(colors[n]===2)return;colors[n]=1;trail.push(n);for(const dep of registry[n])visit(dep);trail.pop();colors[n]=2}visit(name)}
+// Sequential per-root BFS matching exact execution order
+function collectSequentialReachable(names){const seen=new Set(),list=[];for(const root of names){const queue=[root];for(let i=0;i<queue.length;i++){const n=queue[i];if(seen.has(n))continue;seen.add(n);list.push(n);for(const dep of registry[n])queue.push(dep)}}return list}
+function acquire(name,queue){if(!has(registry,name))throw new Error(`Unknown dependency '${name}'.`);if(has(installed,name)){installed[name].ref++;return false}installed[name]={ref:1,isDirect:false};order.push(name);for(const dep of registry[name])queue.push(dep);return true}
+function performInstall(name){if(has(installed,name)){if(installed[name].isDirect)return {added:0,promoted:false};installed[name].isDirect=true;installed[name].ref++;return {added:0,promoted:true}}const queue=[];acquire(name,queue);installed[name].isDirect=true;let added=1;for(let pos=0;pos<queue.length;pos++)if(acquire(queue[pos],queue))added++;return {added,promoted:false}}
+function install(name){installCheck(name);return performInstall(name)}
+function checkRemovable(name){if(!has(installed,name))throw new Error(`Package '${name}' is not installed.`);if(!installed[name].isDirect)throw new Error(`Cannot remove '${name}' directly: it is only a dependency.`);const dependents=order.filter(p=>p!==name&&has(registry,p)&&registry[p].includes(name));if(dependents.length)throw new Error(`Cannot remove '${name}': it is still required by ${dependents.join(', ')}.`);}
+function remove(name){checkRemovable(name);installed[name].isDirect=false;const pending=[name];let deleted=0;for(let i=0;i<pending.length;i++){const n=pending[i];if(!has(installed,n))throw new Error(`Inconsistent state at '${n}'.`);const node=installed[n];node.ref--;if(node.ref<0)throw new Error(`Invalid reference count at '${n}'.`);if(node.ref===0){delete installed[n];order=order.filter(v=>v!==n);deleted++;for(const dep of registry[n])pending.push(dep)}}return deleted}
+function snapshot(){return {installed:Object.fromEntries(Object.entries(installed).map(([k,v])=>[k,{ref:v.ref,isDirect:v.isDirect}])),order:order.slice()}}
+function restore(s){installed=Object.assign(Object.create(null),s.installed);order=s.order.slice()}
+function atomic(fn){const state=snapshot();try{return fn()}catch(e){restore(state);throw e}}
+function previewInstall(names){for(const n of names)installCheck(n);const all=collectSequentialReachable(names);const already=[],toInstall=[];for(const n of all){if(has(installed,n))already.push(n);else toInstall.push(n)}const needsPromotion=names.some(n=>has(installed,n)&&!installed[n].isDirect);return {already,toInstall,needsPromotion}}
+function previewRemove(name){checkRemovable(name);const before=snapshot();const touched=new Set();const toRemove=[],kept=[];try{installed[name].isDirect=false;const pending=[name];for(let i=0;i<pending.length;i++){const n=pending[i];touched.add(n);const node=installed[n];node.ref--;if(node.ref===0){delete installed[n];order=order.filter(v=>v!==n);toRemove.push(n);for(const dep of registry[n])pending.push(dep)}}for(const n of touched){if(has(installed,n))kept.push(n)}}finally{restore(before)}return {toRemove,kept}}
+function parseManifest(src){let data;try{data=JSON.parse(src)}catch(e){throw new Error('Manifest is not valid JSON.')}if(!data||Array.isArray(data)||typeof data!=='object')throw new Error('Manifest root must be a JSON object.');if(!has(data,'dependencies'))throw new Error('Manifest needs a top-level dependencies field.');const deps=data.dependencies;let names;if(Array.isArray(deps)){if(!deps.every(v=>typeof v==='string'&&v.trim()))throw new Error('Dependency array must contain package names.');names=deps.map(v=>v.trim())}else if(deps&&typeof deps==='object'){if(!Object.values(deps).every(v=>typeof v==='string'))throw new Error('Dependency versions must be strings.');names=Object.keys(deps)}else throw new Error('dependencies must be an array or object.');return dedup(names)}
+function showInstallPreview(names,onConfirm){if(!names.length){line('Nothing to install (empty dependencies list).','t-dim');return}const {already,toInstall,needsPromotion}=previewInstall(names);if(!toInstall.length&&!needsPromotion){line(names.length===1?`Package '${names[0]}' is already installed directly.`:'All requested packages are already installed directly.','t-warn');return}line('Already installed:','t-warn');line(' '+(already.length?already.join(', '):'(none)'),'t-dim');line('To be installed:','t-ok');line(' '+(toInstall.length?toInstall.join(', '):'(none)'),'t-dim');line('Proceed with installation? [y/n]:','t-prompt');setPending(onConfirm)}
+function showRemovePreview(name,onConfirm){const {toRemove,kept}=previewRemove(name);line('To be removed:','t-error');line(' '+(toRemove.length?toRemove.join(', '):'(none)'),'t-dim');line('Kept (still required):','t-warn');line(' '+(kept.length?kept.join(', '):'(none)'),'t-dim');line('Proceed with removal? [y/n]:','t-prompt');setPending(onConfirm)}
+function execute(raw,manifestFromFile){const command=raw.trim();if(!command)return;if(pendingAction){line('Confirm [y/n]: '+command,'t-prompt');const ans=command.toLowerCase();if(ans==='y'||ans==='yes'){const action=pendingAction;setPending(null);try{action()}catch(e){line('Error: '+e.message,'t-error')}renderState();return}if(ans==='n'||ans==='no'){setPending(null);line('Operation cancelled.','t-warn');renderState();return}line("Please enter 'y' to confirm or 'n' to cancel.",'t-warn');return}line('mini-npm> '+command,'t-prompt');if(closed){line('Session ended. Reset the Registry to start a new demo.','t-warn');return}const [verb,...args]=command.split(/\s+/);const arg=args[0];try{
+ if(verb==='help'){line('install <name> | remove <name> | list | history | help | exit | quit');line('Bonus: install-json <JSON> | install-file [path]','t-dim')}
+ else if(verb==='install'){if(args.length!==1)throw new Error('Usage: install <package>');showInstallPreview([arg],()=>{const res=atomic(()=>install(arg));if(res.added===0&&res.promoted)line(`Marked '${arg}' as directly installed.`,'t-ok');else line(`Installed '${arg}' (${res.added} new package(s) added).`,'t-ok');history.unshift(command)})}
+ else if(verb==='remove'){if(args.length!==1)throw new Error('Usage: remove <package>');showRemovePreview(arg,()=>{const deleted=atomic(()=>remove(arg));line(`Removed '${arg}' (${deleted} package(s) deleted).`,'t-ok');history.unshift(command)})}
+ else if(verb==='list'){if(args.length)throw new Error('Usage: list');if(!order.length)line('No packages are installed.','t-dim');else{line(`Installed packages (${order.length}):`);for(const n of order)line(` ${n} [${installed[n].isDirect?'direct':'dependency'}]`)}}
+ else if(verb==='history'){if(args.length)throw new Error('Usage: history');if(!history.length)line('History is empty.','t-dim');else history.forEach((h,i)=>line(`${i+1}. ${h}`))}
+ else if(verb==='exit'||verb==='quit'){if(args.length)throw new Error('Usage: '+verb);line('Bye.','t-ok');closed=true}
+ else if(verb==='install-json'){const src=command.slice('install-json'.length).trim();if(!src)throw new Error('Usage: install-json <manifest>');const names=parseManifest(src);showInstallPreview(names,()=>{const res=atomic(()=>names.reduce((acc,n)=>{const r=performInstall(n);acc.added+=r.added;acc.promoted+=r.promoted?1:0;return acc},{added:0,promoted:0}));if(res.added===0&&res.promoted>0)line(`Updated ${res.promoted} package(s) to directly installed (0 new packages added).`,'t-ok');else line(`Installed ${names.length} package request(s) (${res.added} new package(s) added).`,'t-ok');history.unshift(command)})}
+ else if(verb==='install-file'){if(!manifestFromFile)throw new Error('In this browser demo, use the JSON file picker in the bonus section.');const names=parseManifest(manifestFromFile);showInstallPreview(names,()=>{const res=atomic(()=>names.reduce((acc,n)=>{const r=performInstall(n);acc.added+=r.added;acc.promoted+=r.promoted?1:0;return acc},{added:0,promoted:0}));if(res.added===0&&res.promoted>0)line(`Updated ${res.promoted} package(s) to directly installed (0 new packages added).`,'t-ok');else line(`Installed ${names.length} package request(s) (${res.added} new package(s) added).`,'t-ok');history.unshift(command)})}
+ else throw new Error(`Unknown command '${verb}'. Type help.`)
+ }catch(e){line('Error: '+e.message,'t-error')}renderState()}
+function parseRegistry(input){let data;try{data=JSON.parse(input)}catch(e){throw new Error('مقدار Registry باید در قالب JSON معتبر باشد.')}if(!data||typeof data!=='object'||Array.isArray(data))throw new Error('ساختار Registry باید یک شیء JSON معتبر باشد.');const keys=Object.keys(data);if(keys.length>80)throw new Error('در محیط شبیه‌ساز امکان تعریف حداکثر ۸۰ پکیج وجود دارد.');const normalized=Object.create(null);for(const [name,deps] of Object.entries(data)){if(!/^[A-Za-z][A-Za-z0-9._-]*$/.test(name))throw new Error('نام پکیج نامعتبر: '+name);if(!Array.isArray(deps)||!deps.every(d=>typeof d==='string'&&/^[A-Za-z][A-Za-z0-9._-]*$/.test(d)))throw new Error('وابستگی‌های '+name+' باید به صورت آرایه‌ای از نام‌های معتبر باشند.');normalized[name]=dedup(deps)}return normalized}
+function applyRegistry(){try{const value=parseRegistry(registryText.value);registry=value;clean();status.className='status';status.textContent=`Registry اعمال شد (${Object.keys(registry).length} package). وضعیت قبلی پاک شد.`;line('Registry updated. A new demo session has started.','t-ok')}catch(e){status.className='status error';status.textContent=e.message}}
+$('applyRegistry').addEventListener('click',applyRegistry);
+$('resetRegistry').addEventListener('click',()=>{registryText.value=JSON.stringify(DEFAULT,null,2);applyRegistry()});
+$('loadCycle').addEventListener('click',()=>{registryText.value=JSON.stringify(CYCLIC,null,2);applyRegistry();line('Try: install A | install safe','t-dim')});
+form.addEventListener('submit',e=>{e.preventDefault();execute(input.value);input.value='';input.focus();output.scrollTop=output.scrollHeight});
+output.addEventListener('click',()=>{if(!window.getSelection||!window.getSelection().toString())input.focus()});
+const toggle=$('menuToggle'),nav=$('siteNav');toggle.addEventListener('click',()=>{const isOpen=nav.classList.toggle('open');toggle.setAttribute('aria-expanded',String(isOpen));toggle.setAttribute('aria-label',isOpen?'بستن فهرست':'بازکردن فهرست')});nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');toggle.setAttribute('aria-expanded','false')}));
+var themeBtn=$('themeToggle');if(themeBtn){var curTheme=document.documentElement.getAttribute('data-theme')||'dark';themeBtn.setAttribute('aria-pressed',String(curTheme==='light'));themeBtn.addEventListener('click',function(){var next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',next);try{localStorage.setItem('mini-npm-theme',next)}catch(e){}themeBtn.setAttribute('aria-pressed',String(next==='light'));var meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',next==='light'?'#f3f7f3':'#061009');});}
+$('bonusFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>1024*1024){line('Error: demo JSON file must be under 1 MiB.','t-error');return}try{const body=await file.text();execute('install-file '+file.name,body);if(closed)line('Reset Registry to continue.','t-warn')}catch(err){line('Error reading file: '+err.message,'t-error')}e.target.value=''});
+registry=cloneRegistry(DEFAULT);renderState();
+// ===== Scroll-Reveal Panels, Reading Progress & ScrollSpy =====
+const progressBar=$('readProgressBar');
+const sections=Array.from(document.querySelectorAll('main > section.section'));
+const navLinks=Array.from(document.querySelectorAll('#siteNav a[href^="#"]'));
+function updateProgress(){if(!progressBar)return;const doc=document.documentElement;const max=doc.scrollHeight-window.innerHeight;const pct=max>0?Math.min(100,Math.max(0,(window.scrollY/max)*100)):0;progressBar.style.width=pct.toFixed(2)+'%'}
+function updateScrollSpy(){if(!navLinks.length)return;let current='';const doc=document.documentElement;const atBottom=window.scrollY>20&&window.scrollY+window.innerHeight>=doc.scrollHeight-10;if(atBottom&&sections.length){current=sections[sections.length-1].id}else{const offset=Math.min(180,Math.max(120,window.innerHeight*0.22));for(const sec of sections){const top=sec.getBoundingClientRect().top;if(top<=offset)current=sec.id}}navLinks.forEach(a=>{const active=current&&a.getAttribute('href')==='#'+current;a.classList.toggle('active',Boolean(active));if(active)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}
+let ticking=false;
+function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{updateProgress();updateScrollSpy();ticking=false})}
+window.addEventListener('scroll',onScroll,{passive:true});
+window.addEventListener('resize',onScroll,{passive:true});
+updateProgress();updateScrollSpy();
+const reduceMotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduceMotion&&'IntersectionObserver' in window){
+ document.documentElement.classList.add('js-anim');
+ const revealObs=new IntersectionObserver((entries,obs)=>{
+ for(const entry of entries){
+ if(entry.isIntersecting){
+ entry.target.classList.add('is-visible');
+ obs.unobserve(entry.target);
+ }
+ }
+ },{threshold:0.06,rootMargin:'0px 0px -40px 0px'});
+ sections.forEach(sec=>revealObs.observe(sec));
+ window.addEventListener('hashchange',()=>{
+ const id=location.hash.slice(1);
+ const target=id&&document.getElementById(id);
+ if(target&&target.classList.contains('section'))target.classList.add('is-visible');
+ });
+}else{
+ sections.forEach(sec=>sec.classList.add('is-visible'));
+}
+})();
+</script>
+</body></html>
